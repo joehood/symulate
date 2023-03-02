@@ -1,0 +1,201 @@
+{
+    "name": "Synchronous Machine",
+    "desc": "Three-phase DQ synchronous machine with turbo-governor model",
+    "prefix": "SM",
+    "parameters": [
+        {
+            "name": "rs",
+            "desc": "Stator resistance",
+            "units": "Ohm",
+            "default": 4160.0
+        },
+        {
+            "name": "Lls",
+            "desc": "Stator leakage inductance",
+            "units": "H",
+            "default": 4160.0
+        },
+        {
+            "name": "Lmq",
+            "desc": "Q-axis mutual inductance",
+            "units": "H",
+            "default": 4160.0
+        },
+        {
+            "name": "Lmd",
+            "desc": "D-axis mutual inductance",
+            "units": "",
+            "default": 4160.0
+        },
+        {
+            "name": "rkq",
+            "desc": "",
+            "units": "",
+            "default": 4160.0
+        },
+        {
+            "name": "Llkq",
+            "desc": "",
+            "units": "",
+            "default": 4160.0
+        },
+        {
+            "name": "rkd",
+            "desc": "",
+            "units": "",
+            "default": 4160.0
+        },
+        {
+            "name": "Llkd",
+            "desc": "",
+            "units": "",
+            "default": 4160.0
+        },
+        {
+            "name": "rfd",
+            "desc": "",
+            "units": "",
+            "default": 4160.0
+        },
+        {
+            "name": "Llfd",
+            "desc": "",
+            "units": "",
+            "default": 4160.0
+        },
+        {
+            "name": "vfdb",
+            "desc": "",
+            "units": "",
+            "default": 4160.0
+        },
+        {
+            "name": "Kp",
+            "desc": "",
+            "units": "",
+            "default": 4160.0
+        },
+        {
+            "name": "Kp",
+            "desc": "",
+            "units": "",
+            "default": 4160.0
+        },
+        {
+            "name": "Ki",
+            "desc": "",
+            "units": "",
+            "default": 4160.0
+        },
+        {
+            "name": "J",
+            "desc": "",
+            "units": "",
+            "default": 4160.0
+        },
+        {
+            "name": "vfd",
+            "desc": "",
+            "units": "",
+            "default": 4160.0
+        }
+    ],
+    "ports": [
+        {
+            "name": "Electrical Terminal",
+            "type": "dq",
+            "input": [ "vds", "vqs" ],
+            "output": [ "ids", "iqs" ]
+        }
+    ],
+    "algebraic": [
+        {
+            "name": "Lq",
+            "desc": "Equivalent q-axis Inductance",
+            "units": "H",
+            "expr": "Lls + (Lmq * Llkq) / (Llkq + Lmq)"
+        },
+        {
+            "name": "Ld",
+            "desc": "Equivalent d-axis Inductance",
+            "units": "H",
+            "expr": "Lls + (Lmd * Llfd * Llkd) / (Lmd * Llfd + Lmd * Llkd + Llfd * Llkd)"
+        },
+        {
+            "name": "fq",
+            "desc": "Q-axis flux",
+            "units": "Wb",
+            "expr": "Lmq / (Lmq + Llkq) * fkq\")"
+        },
+        {
+            "name": "fd",
+            "desc": "D-axis flux",
+            "units": "Wb",
+            "expr": "Lmd * (Lmd * (fkd / Llkd + ffd / Llfd)) / (1 + Lmd / Llfd + Lmd / Llkd)\")"
+        },
+        {
+            "name": "Te",
+            "desc": "Electrical torque",
+            "units": "N.m",
+            "expr": "3/2 * P/2 * (fds * iqs - fqs * ids)\")"
+        },
+        {
+            "name": "Tm",
+            "desc": "Mechanical torque",
+            "units": "N.m",
+            "expr": "Kp * (ws - wr) + th * Ki\")"
+        }
+    ],
+    "states": [
+        {
+            "name": "fkq",
+            "desc": "Q-axis flux",
+            "units": "Wb",
+            "derivative": "dfkq_dt",
+            "diffeq": "dfkq_dt * Llkq + rkq * (fkq - Lq * iqs - fq + Lls * iqs)"
+        },
+        {
+            "name": "fkd",
+            "desc": "D-axis flux",
+            "units": "Wb",
+            "derivative": "dfkd_dt",
+            "diffeq": "dfkd_dt * Llkd + rkd * (fkd - Ld * ids + fd + Lls * ids)"
+        },
+        {
+            "name": "ffd",
+            "desc": "Field winding flux",
+            "units": "Wb",
+            "derivative": "dffd_dt",
+            "diffeq": "dffd_dt * Llfd + rfd * (ffd - Ld * ids + fd + Lls * ids) - vfd"
+        },
+
+        {
+            "name": "wr",
+            "desc": "Rotor speed",
+            "units": "rad/s",
+            "derivative": "dwr_dt",
+            "diffeq": "diqs_dt * Lls + rs * iqs + wr * Ld + wr * fd - vqs"
+        },
+        {
+            "name": "th",
+            "desc": "Rotor angle",
+            "units": "rad",
+            "derivative": "dth_dt",
+            "diffeq": "dth_dt + wr - ws"
+        },
+        {
+            "name": "iqs",
+            "desc": "Q-axis terminal current",
+            "units": "A",
+            "derivative": "diqs_dt",
+            "diffeq": "diqs_dt * Lls + rs * iqs + wr * Ld + wr * fd - vqs"
+        },
+        {
+            "name": "ids",
+            "desc": "D-axis terminal current",
+            "units": "A",
+            "derivative": "dids_dt",
+            "diffeq": "dids_dt * Lls + rs * ids - wr * Lq - wr * fq - vds"
+        }
+    ]
+}
